@@ -1,7 +1,7 @@
 use std::{mem, sync::{Arc, Mutex}};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use macroquad::prelude::*;
-use rustfft::{num_complex::Complex, num_traits::Zero, FftPlanner};
+use rustfft::{num_complex::{Complex, ComplexFloat}, num_traits::{Float, Zero}, FftPlanner};
 
 
 static mut MAX_EVER_VAL: f32 = 0.0;
@@ -85,11 +85,16 @@ async fn main() {
                     continue;
                 }
                 
-                let mag_scaled_db = (20. * data.log10()).max(0.) * avg_factor as f32;
+                //let freq_scale = (freq / max_freq).exp();
+                let freq_scale = 2595. * (1. + freq.max(1000.)/700.).log10();
+                let mag_scaled_db = ((20. * data.log10()).max(0.) * freq_scale) * avg_factor as f32;
                 let mut total_mag = mag_scaled_db;
                 let mut total_count = avg_factor;
                 for k in 0..avg_factor {
-                    total_mag += (20. * magnitudes[i+k].log10()).max(0.) * (avg_factor as f32 - k as f32);
+                    let l_freq = ((i+k) as f32 * nyquist) / (samples as f32 / 4.);
+
+                    let l_freq_scale = 2595. * (1. + (l_freq).max(1000.) /700.).log10();
+                    total_mag += ((20. * magnitudes[i+k].log10()).max(0.) * l_freq_scale) * (avg_factor as f32 - k as f32);
                     total_count += avg_factor - k;
                 }
                 let avg_mag = total_mag / total_count as f32;
