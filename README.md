@@ -1,10 +1,6 @@
 # Music visualizer
 
-Realtime music visualizer written in Rust. Uses CPAL to get the audio data that's being outputted to the default output. Uses Macroquad for rendering. Currently only visualizes the audio wave.
-
-# Planned
-
-Add rustfft for a proper visualizer of the frequency range.
+Realtime music visualizer written in Rust. Uses CPAL to get the audio data that's being outputted to the default output. Uses Macroquad for rendering. Uses rustfft to perform an FFT on the audio samples.
 
 # Building
 `cargo build`
